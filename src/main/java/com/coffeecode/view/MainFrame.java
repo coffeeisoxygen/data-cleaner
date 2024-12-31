@@ -8,10 +8,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -20,7 +16,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -31,22 +26,19 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import com.coffeecode.model.FileModel;
+import com.coffeecode.controller.MainFrameController;
 import com.coffeecode.service.CSVFileService;
 import com.coffeecode.service.ExcelFileService;
-import com.coffeecode.service.FileReaderService;
-import com.coffeecode.util.TableUtils;
-import com.opencsv.exceptions.CsvException;
 
 public class MainFrame extends JFrame {
 
     private JTable table;
     private DefaultTableModel tableModel;
-    private FileReaderService fileService;
-    private FileModel fileModel;
     private JComboBox<Integer> headerPicker;
+    private MainFrameController controller;
 
     public MainFrame() {
+        controller = new MainFrameController();
         setTitle("Aplikasi Java Swing Modern");
         setSize(800, 600);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -83,9 +75,9 @@ public class MainFrame extends JFrame {
         JButton deleteCoulmnsBtn = createModernButton("Delete Columns");
 
         // Add action listener for file upload
-        buttonUploadCSV.addActionListener((ActionEvent e) -> handleFileUpload(new CSVFileService()));
-        buttonUploadExcel.addActionListener((ActionEvent e) -> handleFileUpload(new ExcelFileService()));
-        refreshBtn.addActionListener((ActionEvent e) -> handleRefresh());
+        buttonUploadCSV.addActionListener((ActionEvent e) -> controller.handleFileUpload(new CSVFileService(), new JFileChooser(), tableModel, headerPicker));
+        buttonUploadExcel.addActionListener((ActionEvent e) -> controller.handleFileUpload(new ExcelFileService(), new JFileChooser(), tableModel, headerPicker));
+        refreshBtn.addActionListener((ActionEvent e) -> controller.handleRefresh(tableModel, headerPicker));
 
         // Add buttons to top panel
         topPanel.add(refreshBtn);
@@ -95,7 +87,7 @@ public class MainFrame extends JFrame {
 
         // Header picker
         headerPicker = new JComboBox<>();
-        headerPicker.addActionListener((ActionEvent e) -> handleHeaderSelection());
+        headerPicker.addActionListener((ActionEvent e) -> controller.handleHeaderSelection(tableModel, headerPicker));
         topPanel.add(new JLabel("Select Header Row:"));
         topPanel.add(headerPicker);
 
@@ -148,11 +140,11 @@ public class MainFrame extends JFrame {
         JPopupMenu contextMenu = new JPopupMenu();
 
         JMenuItem fixFormattingItem = new JMenuItem("Fix Formatting");
-        fixFormattingItem.addActionListener(e -> handleFixFormatting());
+        fixFormattingItem.addActionListener(e -> controller.handleFixFormatting(tableModel, table));
         contextMenu.add(fixFormattingItem);
 
         JMenuItem replaceTextItem = new JMenuItem("Replace Text");
-        replaceTextItem.addActionListener(e -> handleReplaceText());
+        replaceTextItem.addActionListener(e -> controller.handleReplaceText(tableModel, table));
         contextMenu.add(replaceTextItem);
 
         return contextMenu;
@@ -166,93 +158,6 @@ public class MainFrame extends JFrame {
         button.setFocusPainted(false);
         button.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15)); // Padding inside button
         return button;
-    }
-
-    private void handleFileUpload(FileReaderService fileService) {
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            try {
-                this.fileService = fileService;
-                fileModel = fileService.loadFile(file.getAbsolutePath(), "UTF-8", ",", false);
-                updateHeaderPicker(fileModel);
-                updateTableModel(fileModel, 0); // Default to first row as header
-            } catch (IOException | CsvException ex) {
-                JOptionPane.showMessageDialog(this, "Gagal membaca file: " + ex.getMessage(), "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
-    private void handleRefresh() {
-        if (fileModel != null) {
-            int selectedHeaderRow = (int) headerPicker.getSelectedItem();
-            updateTableModel(fileModel, selectedHeaderRow);
-            autoResizeTableColumns(table);
-        }
-    }
-
-    private void handleHeaderSelection() {
-        if (fileModel != null) {
-            int selectedHeaderRow = (int) headerPicker.getSelectedItem();
-            updateTableModel(fileModel, selectedHeaderRow);
-            autoResizeTableColumns(table);
-        }
-    }
-
-    private void handleFixFormatting() {
-        int columnIndex = table.getSelectedColumn();
-        if (columnIndex != -1) {
-            TableUtils.fixColumnFormatting(tableModel, columnIndex);
-        }
-    }
-
-    private void handleReplaceText() {
-        int columnIndex = table.getSelectedColumn();
-        if (columnIndex != -1) {
-            String textToReplace = JOptionPane.showInputDialog(this, "Enter text to replace:");
-            String replacementText = JOptionPane.showInputDialog(this, "Enter replacement text:");
-            if (textToReplace != null && replacementText != null) {
-                TableUtils.replaceTextInColumn(tableModel, columnIndex, textToReplace, replacementText);
-            }
-        }
-    }
-
-    private void updateHeaderPicker(FileModel fileModel) {
-        headerPicker.removeAllItems();
-        for (int i = 0; i < fileModel.getData().size(); i++) {
-            headerPicker.addItem(i);
-        }
-    }
-
-    private void updateTableModel(FileModel fileModel, int headerRowIndex) {
-        if (fileModel.getData().isEmpty()) {
-            return;
-        }
-
-        // Extract column names from the selected header row
-        String[] columnNames = fileModel.getData().get(headerRowIndex);
-
-        // Add "No" column to the column names
-        String[] extendedColumnNames = new String[columnNames.length + 1];
-        extendedColumnNames[0] = "No";
-        System.arraycopy(columnNames, 0, extendedColumnNames, 1, columnNames.length);
-
-        // Extract row data starting from the row after the header
-        List<String[]> data = new ArrayList<>(fileModel.getData().subList(headerRowIndex + 1, fileModel.getData().size()));
-
-        // Add row numbers to the data
-        List<Object[]> extendedData = new ArrayList<>();
-        for (int i = 0; i < data.size(); i++) {
-            Object[] row = new Object[data.get(i).length + 1];
-            row[0] = i + 1; // Row number
-            System.arraycopy(data.get(i), 0, row, 1, data.get(i).length);
-            extendedData.add(row);
-        }
-
-        // Update table model
-        tableModel.setDataVector(extendedData.toArray(new Object[0][]), extendedColumnNames);
     }
 
     private void autoResizeTableColumns(JTable table) {
