@@ -73,11 +73,13 @@ public class MainFrame extends JFrame {
         JButton buttonUploadCSV = createModernButton("Upload CSV");
         JButton buttonUploadExcel = createModernButton("Upload Excel");
         JButton refreshBtn = createModernButton("Refresh");
-        JButton deleteCoulmnsBtn = createModernButton("Delete Columns");
+        JButton deleteDataBtn = createModernButton("clear data");
 
         // Add action listener for file upload
-        buttonUploadCSV.addActionListener((ActionEvent e) -> controller.handleFileUpload(new CSVFileService(), new JFileChooser(), tableModel, headerPicker));
-        buttonUploadExcel.addActionListener((ActionEvent e) -> controller.handleFileUpload(new ExcelFileService(), new JFileChooser(), tableModel, headerPicker));
+        buttonUploadCSV.addActionListener((ActionEvent e) -> controller.handleFileUpload(new CSVFileService(),
+                new JFileChooser(), tableModel, headerPicker));
+        buttonUploadExcel.addActionListener((ActionEvent e) -> controller.handleFileUpload(new ExcelFileService(),
+                new JFileChooser(), tableModel, headerPicker));
         refreshBtn.addActionListener((ActionEvent e) -> {
             controller.handleRefresh(tableModel, headerPicker);
             autoResizeTableColumns(table);
@@ -85,7 +87,7 @@ public class MainFrame extends JFrame {
 
         // Add buttons to top panel
         topPanel.add(refreshBtn);
-        topPanel.add(deleteCoulmnsBtn);
+        topPanel.add(deleteDataBtn);
         topPanel.add(buttonUploadCSV);
         topPanel.add(buttonUploadExcel);
 
