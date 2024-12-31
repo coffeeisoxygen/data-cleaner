@@ -6,30 +6,23 @@
     "configurations": [
         {
             "type": "java",
-            "name": "MainFrame",
+            "name": "Launch MainFrame",
             "request": "launch",
             "mainClass": "com.coffeecode.view.MainFrame",
             "projectName": "datacleaner"
         },
         {
             "type": "java",
-            "name": "MainFrame",
-            "request": "launch",
-            "mainClass": "com.coffeecode.MainFrame",
-            "projectName": "datacleaner"
-        },
-        {
-            "type": "java",
-            "name": "Current File",
-            "request": "launch",
-            "mainClass": "${file}"
-        },
-        {
-            "type": "java",
-            "name": "App",
+            "name": "Launch App",
             "request": "launch",
             "mainClass": "com.coffeecode.App",
             "projectName": "datacleaner"
+        },
+        {
+            "type": "java",
+            "name": "Launch Current File",
+            "request": "launch",
+            "mainClass": "${file}"
         }
     ]
 }
