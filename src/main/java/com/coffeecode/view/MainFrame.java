@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
@@ -32,8 +33,8 @@ public class MainFrame extends JFrame {
 
     private JTable table;
     private DefaultTableModel tableModel;
-    private FileService fileService;
-    private FileModel fileModel;
+    private final transient FileService fileService;
+    private transient FileModel fileModel;
     private JComboBox<Integer> headerPicker;
 
     public MainFrame() {
@@ -70,7 +71,7 @@ public class MainFrame extends JFrame {
         // Create buttons
         JButton buttonUpload = createModernButton("Upload File");
         JButton refreshBtn = createModernButton("Refresh");
-        JButton deleteRowsBtn = createModernButton("Delete Rows");
+        JButton fixFormatingBtn = createModernButton("Fix Formating");
         JButton deleteCoulmnsBtn = createModernButton("Delete Columns");
 
         // Add action listener for file upload
@@ -79,7 +80,7 @@ public class MainFrame extends JFrame {
 
         // Add buttons to top panel
         topPanel.add(refreshBtn);
-        topPanel.add(deleteRowsBtn);
+        topPanel.add(fixFormatingBtn);
         topPanel.add(deleteCoulmnsBtn);
         topPanel.add(buttonUpload); // Upload button is added last to be on the right
 
@@ -102,8 +103,8 @@ public class MainFrame extends JFrame {
         table = new JTable(tableModel);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Enable horizontal scrolling
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         bottomPanel.add(scrollPane, BorderLayout.CENTER);
         return bottomPanel;
@@ -170,7 +171,8 @@ public class MainFrame extends JFrame {
         System.arraycopy(columnNames, 0, extendedColumnNames, 1, columnNames.length);
 
         // Extract row data starting from the row after the header
-        List<String[]> data = new ArrayList<>(fileModel.getData().subList(headerRowIndex + 1, fileModel.getData().size()));
+        List<String[]> data = new ArrayList<>(
+                fileModel.getData().subList(headerRowIndex + 1, fileModel.getData().size()));
 
         // Add row numbers to the data
         List<Object[]> extendedData = new ArrayList<>();
@@ -182,7 +184,7 @@ public class MainFrame extends JFrame {
         }
 
         // Update table model
-        tableModel.setDataVector(extendedData.toArray(new Object[0][]), extendedColumnNames);
+        tableModel.setDataVector(extendedData.toArray(new Object[extendedData.size()][]), extendedColumnNames);
     }
 
     public static void main(String[] args) {
