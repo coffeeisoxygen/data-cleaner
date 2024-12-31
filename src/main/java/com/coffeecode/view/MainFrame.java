@@ -83,6 +83,7 @@ public class MainFrame extends JFrame {
         refreshBtn.addActionListener((ActionEvent e) -> {
             controller.handleRefresh(tableModel, headerPicker);
             autoResizeTableColumns(table);
+
         });
 
         // Add buttons to top panel

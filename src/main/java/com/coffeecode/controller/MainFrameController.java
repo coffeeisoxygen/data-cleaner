@@ -106,4 +106,12 @@ public class MainFrameController {
         // Update table model
         tableModel.setDataVector(extendedData.toArray(Object[][]::new), extendedColumnNames);
     }
+
+    public void handleDeleteData(DefaultTableModel tableModel) {
+        if (fileModel != null) {
+            fileModel.setData(new ArrayList<>()); // Clear the data in the fileModel
+        }
+        tableModel.setRowCount(0); // Clear the data in the tableModel
+    }
+
 }
