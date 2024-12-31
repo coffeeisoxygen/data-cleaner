@@ -1,0 +1,9 @@
+E:\developement\jvdatadleaner\datacleaner\src\main\java\com\coffeecode\App.java
+E:\developement\jvdatadleaner\datacleaner\src\main\java\com\coffeecode\controller\MainFrameController.java
+E:\developement\jvdatadleaner\datacleaner\src\main\java\com\coffeecode\exception\CustomCSVProcessingException.java
+E:\developement\jvdatadleaner\datacleaner\src\main\java\com\coffeecode\model\FileModel.java
+E:\developement\jvdatadleaner\datacleaner\src\main\java\com\coffeecode\service\CSVFileService.java
+E:\developement\jvdatadleaner\datacleaner\src\main\java\com\coffeecode\service\ExcelFileService.java
+E:\developement\jvdatadleaner\datacleaner\src\main\java\com\coffeecode\service\FileReaderService.java
+E:\developement\jvdatadleaner\datacleaner\src\main\java\com\coffeecode\util\TableUtils.java
+E:\developement\jvdatadleaner\datacleaner\src\main\java\com\coffeecode\view\MainFrame.java
