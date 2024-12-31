@@ -1,40 +1,30 @@
 package com.coffeecode.view;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
+import com.coffeecode.model.FileModel;
+import com.coffeecode.service.FileService;
+import com.coffeecode.util.TableUtils;
+import com.opencsv.exceptions.CsvException;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
-import javax.swing.table.DefaultTableModel;
-
-import com.coffeecode.model.FileModel;
-import com.coffeecode.service.FileService;
-import com.opencsv.exceptions.CsvException;
-
 public class MainFrame extends JFrame {
 
     private JTable table;
     private DefaultTableModel tableModel;
-    private final transient FileService fileService;
-    private transient FileModel fileModel;
+    private FileService fileService;
+    private FileModel fileModel;
     private JComboBox<Integer> headerPicker;
 
     public MainFrame() {
@@ -71,7 +61,6 @@ public class MainFrame extends JFrame {
         // Create buttons
         JButton buttonUpload = createModernButton("Upload File");
         JButton refreshBtn = createModernButton("Refresh");
-        JButton fixFormatingBtn = createModernButton("Fix Formating");
         JButton deleteCoulmnsBtn = createModernButton("Delete Columns");
 
         // Add action listener for file upload
@@ -80,7 +69,6 @@ public class MainFrame extends JFrame {
 
         // Add buttons to top panel
         topPanel.add(refreshBtn);
-        topPanel.add(fixFormatingBtn);
         topPanel.add(deleteCoulmnsBtn);
         topPanel.add(buttonUpload); // Upload button is added last to be on the right
 
@@ -103,11 +91,50 @@ public class MainFrame extends JFrame {
         table = new JTable(tableModel);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Enable horizontal scrolling
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        // Add context menu to table
+        JPopupMenu contextMenu = createContextMenu();
+        table.setComponentPopupMenu(contextMenu);
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    int column = table.columnAtPoint(e.getPoint());
+                    table.setRowSelectionInterval(row, row);
+                    table.setColumnSelectionInterval(column, column);
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    int column = table.columnAtPoint(e.getPoint());
+                    table.setRowSelectionInterval(row, row);
+                    table.setColumnSelectionInterval(column, column);
+                }
+            }
+        });
 
         bottomPanel.add(scrollPane, BorderLayout.CENTER);
         return bottomPanel;
+    }
+
+    private JPopupMenu createContextMenu() {
+        JPopupMenu contextMenu = new JPopupMenu();
+
+        JMenuItem fixFormattingItem = new JMenuItem("Fix Formatting");
+        fixFormattingItem.addActionListener(e -> handleFixFormatting());
+        contextMenu.add(fixFormattingItem);
+
+        JMenuItem replaceTextItem = new JMenuItem("Replace Text");
+        replaceTextItem.addActionListener(e -> handleReplaceText());
+        contextMenu.add(replaceTextItem);
+
+        return contextMenu;
     }
 
     private JButton createModernButton(String text) {
@@ -140,6 +167,7 @@ public class MainFrame extends JFrame {
         if (fileModel != null) {
             int selectedHeaderRow = (int) headerPicker.getSelectedItem();
             updateTableModel(fileModel, selectedHeaderRow);
+            autoResizeTableColumns(table);
         }
     }
 
@@ -147,6 +175,25 @@ public class MainFrame extends JFrame {
         if (fileModel != null) {
             int selectedHeaderRow = (int) headerPicker.getSelectedItem();
             updateTableModel(fileModel, selectedHeaderRow);
+            autoResizeTableColumns(table);
+        }
+    }
+
+    private void handleFixFormatting() {
+        int columnIndex = table.getSelectedColumn();
+        if (columnIndex != -1) {
+            TableUtils.fixColumnFormatting(tableModel, columnIndex);
+        }
+    }
+
+    private void handleReplaceText() {
+        int columnIndex = table.getSelectedColumn();
+        if (columnIndex != -1) {
+            String textToReplace = JOptionPane.showInputDialog(this, "Enter text to replace:");
+            String replacementText = JOptionPane.showInputDialog(this, "Enter replacement text:");
+            if (textToReplace != null && replacementText != null) {
+                TableUtils.replaceTextInColumn(tableModel, columnIndex, textToReplace, replacementText);
+            }
         }
     }
 
@@ -184,7 +231,30 @@ public class MainFrame extends JFrame {
         }
 
         // Update table model
-        tableModel.setDataVector(extendedData.toArray(new Object[extendedData.size()][]), extendedColumnNames);
+        tableModel.setDataVector(extendedData.toArray(new Object[0][]), extendedColumnNames);
+    }
+
+    private void autoResizeTableColumns(JTable table) {
+        for (int column = 0; column < table.getColumnCount(); column++) {
+            TableColumn tableColumn = table.getColumnModel().getColumn(column);
+            int preferredWidth = tableColumn.getMinWidth();
+            int maxWidth = tableColumn.getMaxWidth();
+
+            for (int row = 0; row < table.getRowCount(); row++) {
+                TableCellRenderer cellRenderer = table.getCellRenderer(row, column);
+                Component c = table.prepareRenderer(cellRenderer, row, column);
+                int width = c.getPreferredSize().width + table.getIntercellSpacing().width;
+                preferredWidth = Math.max(preferredWidth, width);
+
+                // We've exceeded the maximum width, no need to check other rows
+                if (preferredWidth >= maxWidth) {
+                    preferredWidth = maxWidth;
+                    break;
+                }
+            }
+
+            tableColumn.setPreferredWidth(preferredWidth);
+        }
     }
 
     public static void main(String[] args) {
