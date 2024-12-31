@@ -4,19 +4,12 @@ import java.util.List;
 
 public class FileModel {
     private String fileName;
-    private String encoding;
-    private boolean hasHeader;
-    private String delimiter;
     private List<String> headers; // Simpan header terpisah
     private List<String[]> data; // Simpan data
 
     // Constructor
-    public FileModel(String fileName, String encoding, boolean hasHeader, String delimiter, List<String> headers,
-            List<String[]> data) {
+    public FileModel(String fileName, List<String> headers, List<String[]> data) {
         this.fileName = fileName;
-        this.encoding = encoding;
-        this.hasHeader = hasHeader;
-        this.delimiter = delimiter;
         this.headers = headers;
         this.data = data;
     }
@@ -28,30 +21,6 @@ public class FileModel {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
-    }
-
-    public String getEncoding() {
-        return encoding;
-    }
-
-    public void setEncoding(String encoding) {
-        this.encoding = encoding;
-    }
-
-    public boolean isHasHeader() {
-        return hasHeader;
-    }
-
-    public void setHasHeader(boolean hasHeader) {
-        this.hasHeader = hasHeader;
-    }
-
-    public String getDelimiter() {
-        return delimiter;
-    }
-
-    public void setDelimiter(String delimiter) {
-        this.delimiter = delimiter;
     }
 
     public List<String> getHeaders() {

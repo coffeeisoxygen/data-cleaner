@@ -43,6 +43,6 @@ public class ExcelFileService implements FileReaderService {
             }
         }
 
-        return new FileModel(filePath, encoding, hasHeader, delimiter, headers, data);
+        return new FileModel(filePath, headers, data);
     }
 }

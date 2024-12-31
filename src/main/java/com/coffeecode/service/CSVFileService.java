@@ -39,6 +39,6 @@ public class CSVFileService implements FileReaderService {
             data.addAll(allRows);
         }
 
-        return new FileModel(filePath, encoding, hasHeader, delimiter, headers, data);
+        return new FileModel(filePath, headers, data);
     }
 }
