@@ -77,7 +77,10 @@ public class MainFrame extends JFrame {
         // Add action listener for file upload
         buttonUploadCSV.addActionListener((ActionEvent e) -> controller.handleFileUpload(new CSVFileService(), new JFileChooser(), tableModel, headerPicker));
         buttonUploadExcel.addActionListener((ActionEvent e) -> controller.handleFileUpload(new ExcelFileService(), new JFileChooser(), tableModel, headerPicker));
-        refreshBtn.addActionListener((ActionEvent e) -> controller.handleRefresh(tableModel, headerPicker));
+        refreshBtn.addActionListener((ActionEvent e) -> {
+            controller.handleRefresh(tableModel, headerPicker);
+            autoResizeTableColumns(table);
+        });
 
         // Add buttons to top panel
         topPanel.add(refreshBtn);
@@ -87,7 +90,10 @@ public class MainFrame extends JFrame {
 
         // Header picker
         headerPicker = new JComboBox<>();
-        headerPicker.addActionListener((ActionEvent e) -> controller.handleHeaderSelection(tableModel, headerPicker));
+        headerPicker.addActionListener((ActionEvent e) -> {
+            controller.handleHeaderSelection(tableModel, headerPicker);
+            autoResizeTableColumns(table);
+        });
         topPanel.add(new JLabel("Select Header Row:"));
         topPanel.add(headerPicker);
 
