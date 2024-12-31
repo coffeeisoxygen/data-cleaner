@@ -38,7 +38,7 @@ public class ExcelFileService implements FileReaderService {
                     headers = rowData;
                     isHeader = false;
                 } else {
-                    data.add(rowData.toArray(new String[0]));
+                    data.add(rowData.toArray(String[]::new));
                 }
             }
         }

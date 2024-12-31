@@ -104,6 +104,6 @@ public class MainFrameController {
         }
 
         // Update table model
-        tableModel.setDataVector(extendedData.toArray(new Object[0][]), extendedColumnNames);
+        tableModel.setDataVector(extendedData.toArray(Object[][]::new), extendedColumnNames);
     }
 }

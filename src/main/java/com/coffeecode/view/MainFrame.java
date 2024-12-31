@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
@@ -35,7 +36,7 @@ public class MainFrame extends JFrame {
     private JTable table;
     private DefaultTableModel tableModel;
     private JComboBox<Integer> headerPicker;
-    private MainFrameController controller;
+    private final transient MainFrameController controller;
 
     public MainFrame() {
         controller = new MainFrameController();
@@ -110,8 +111,8 @@ public class MainFrame extends JFrame {
         table = new JTable(tableModel);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Enable horizontal scrolling
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         // Add context menu to table
         JPopupMenu contextMenu = createContextMenu();
